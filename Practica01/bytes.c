@@ -28,8 +28,8 @@
 
 /**
  * @file bytes.c
- * @author Jose Ricardo Rodriguez Abreu
- * @date 13 Feb 2017
+ * @author Jose Ricardo Rodriguez Abreu && Ricardo Jimenez Mendez
+ * @date 15 Feb 2017
  * @brief File containing the second exercise from the first practice for the
  * "Cryptography and security" class.
  *
@@ -146,6 +146,15 @@ int empareja_archivos(char *argv[])
   return 0;
 }
 
+/**
+ * @brief Funcion para obtener el grado de un polinomio.
+ *
+ * Es la funcion para obtener el grado de un polinomio
+ * con su representacion en base dos de byte.
+ *
+ * @param polinomio - Es la refrencia a el polinomio a observar.
+ * @return un entero >= 0 que nos dice el grado del entero polinomio.
+ */
 int get_grado(unsigned int *polinomio)
 {
   int grado = 0;
@@ -203,6 +212,16 @@ int realiza_xor(char *archivos[])
   return 0;
 }
 
+/**
+ * @brief Funcion para multiplicar dos polinomios.
+ *
+ * Es la funcion para obtener el modulo de dos polinomios:
+ * reduccion modular polinomial tambien llamada.
+ *
+ * @param f - Es el polinomio que va a ser multiplicado.
+ * @param g - Es el polinomio por el que se multiplica.
+ * @return un entero representativo en base dos del producto.
+ */
 unsigned int multiplica(unsigned int f, unsigned int g)
 {
   unsigned int respuesta = 0;
@@ -219,6 +238,16 @@ unsigned int multiplica(unsigned int f, unsigned int g)
   return resultado;
 }
 
+/**
+ * @brief Funcion para dividir dos polinomios.
+ *
+ * Es la funcion para obtener el modulo de dos polinomios:
+ * reduccion modular polinomial tambien llamada.
+ *
+ * @param f - Es el polinomio que va a ser dividido.
+ * @param m - Es el polinomio que divide.
+ * @return un entero representativo en base dos del modulo.
+ */
 unsigned int divide(unsigned int f, unsigned int m)
 {
   unsigned int v = f;
@@ -258,7 +287,6 @@ int realiza_multiplicacion(char *entrada)
   int int_file;
   unsigned int int_resultado = 0;
   unsigned int cast_entrada;
-  
   multi = fopen(nombre_archivo,"wb+");
   file = fopen(entrada,"rb");
   if(file == NULL || multi == NULL){
@@ -274,13 +302,11 @@ int realiza_multiplicacion(char *entrada)
     // 283 en binario es 100011011;
     // que es el polinomio = X^8+X^4+X^3+X+1
     unsigned int POLINOMIO = 283;
-    printf("%d \n",int_resultado);
+    //printf("%d \n",int_resultado);
     int_resultado = divide(int_resultado,POLINOMIO);
-    printf("%d \n",int_resultado);
-    unsigned int cota = 255;
-    //salida_multi = int_resultado & cota;
+    //printf("%d \n",int_resultado);
     salida_multi[0] = int_resultado;
-    fprintf(multi,"%c",salida_multi[0]);
+    fprintf(multi,"%c",salida_multi[0]);    
   }while(int_file != -1);
   return 0;
 }
@@ -296,13 +322,16 @@ int realiza_multiplicacion(char *entrada)
  */
 int main(int argc, char *argv[])
 {
-  /*unsigned int pp1 = 20250;
-  unsigned int pp2 = 255;
-  printf("%d \n",divide(pp1,pp2));
-  exit(0);*/
   //Si el parametro no es valido terminamos.
   if(argv[1] == NULL || argv[2] == NULL){
     printf("Favor de ejecutar el programa con \"%s <Ruta de dos archivos>\"\n",argv[0]);
+    return 1;
+  }
+  printf("Aviso: El programa en C no se encuentra");
+  printf(" optimizado para archivos con acentos \n");
+  if(realiza_multiplicacion(argv[1])){
+    printf("Existe un problema al querer relizar la multiplicacion");
+    printf(" en el procedimiento linea: %d.\n",__LINE__);
     return 1;
   }
   //Revisamos que ambos archivos tengan el mismo tamanio
@@ -312,16 +341,10 @@ int main(int argc, char *argv[])
     printf(" en el procedimiento linea: %d.\n",__LINE__);
     return 1;
   }
-
   if(realiza_xor(argv)){
     printf("Existe un problema al querer realizar el xor");
     printf(" en el procedimiento linea: %d.\n",__LINE__);
     return 1;
-  }
-  if(realiza_multiplicacion(argv[1])){
-    printf("Existe un problema al querer relizar la multiplicacion");
-    printf(" en el procedimiento linea: %d.\n",__LINE__);
-    return 1;
-  }
+    }
   return 0;
 } //Fin de bytes.c
