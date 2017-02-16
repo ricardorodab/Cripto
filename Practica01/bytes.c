@@ -46,6 +46,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef max
+#define max(a,b) ((a) > (b) ? (a) : (b))
+#endif
+
 /**
  * @brief Constante char.
  *
@@ -81,7 +85,7 @@
  */
 int empareja_archivos(char *argv[])
 {
-int linea;
+  int linea;
   char char_file1[1];
   char char_file2[1];
   int int_file1, int_file2;
@@ -105,6 +109,10 @@ int linea;
     if(int_file1 == -1){
       //rewind(file1); //Esto es para regresar la marca de lectura.
       int_file2 = fscanf(file2,"%c",char_file2);
+      if(int_file2 == -1){
+	fprintf(file1,"%c",letra[i%(PALABRA_TAMANIO)]);
+	break;
+      }
       if(int_file2 != -1){
 	if(char_file2[0] == '\n'){
 	  fprintf(file1,"%c",'\n');
@@ -115,6 +123,10 @@ int linea;
       i++;
     }else if(int_file2 == -1){
       int_file1 = fscanf(file1,"%c",char_file1);
+      if(int_file1 == -1){
+	fprintf(file2,"%c",letra[i%(PALABRA_TAMANIO)]);
+	break;
+      }
       if(int_file1 != -1){
 	if(char_file1[0] == '\n'){
 	  fprintf(file2,"%c",'\n');
@@ -132,6 +144,17 @@ int linea;
   fclose(file1);
   fclose(file2);
   return 0;
+}
+
+int get_grado(unsigned int *polinomio)
+{
+  int grado = 0;
+  unsigned int poli = *polinomio;
+  while(poli){
+    poli = poli >> 1;
+    grado++;
+  }
+  return grado-1;
 }
 
 /**
@@ -166,6 +189,8 @@ int realiza_xor(char *archivos[])
   do{
     int_file1 = fscanf(file1,"%c",char_file1);
     int_file2 = fscanf(file2,"%c",char_file2);
+    if(int_file1 == -1 && int_file2 == -1)
+      break;
     char file_a = char_file1[0];
     char file_b = char_file2[0];
     char result = file_a ^ file_b;
@@ -176,6 +201,41 @@ int realiza_xor(char *archivos[])
   fclose(file2);
   fclose(xor);
   return 0;
+}
+
+unsigned int multiplica(unsigned int f, unsigned int g)
+{
+  unsigned int respuesta = 0;
+  unsigned int resultado = 0;
+  unsigned int recorrimiento = 0X01;
+  int i;
+  for(i = 0; i < 8; i++){
+    if(g & recorrimiento){
+      resultado ^= f;
+    }
+    f = f << 0X01;
+    recorrimiento = recorrimiento << 0X01;
+  }
+  return resultado;
+}
+
+unsigned int divide(unsigned int f, unsigned int m)
+{
+  unsigned int v = f;
+  unsigned int k = 0;
+  unsigned int z = 0;
+  unsigned int temp = 0;
+  unsigned int w = 0;
+  while(get_grado(&v) >= 8)
+    {
+      k = max(8, get_grado(&v)-3);
+      w = (((0X01 << k) - 0X01) & v);
+      z = v >> k;
+      temp = multiplica(z, (m ^ 256));
+      temp = multiplica(temp, 1 << (k-8));
+      v = w ^ temp;      
+    }
+  return v;
 }
 
 /**
@@ -194,10 +254,9 @@ int realiza_multiplicacion(char *entrada)
   FILE *multi;
   char *nombre_archivo = "multiplicacion.out";
   unsigned char char_file[1];
-  unsigned char *salida_multi;
+  unsigned char salida_multi[1];
   int int_file;
-  int int_resultado = 0;
-  int recorrimiento;
+  unsigned int int_resultado = 0;
   unsigned int cast_entrada;
   
   multi = fopen(nombre_archivo,"wb+");
@@ -210,22 +269,18 @@ int realiza_multiplicacion(char *entrada)
     int_file = fscanf(file,"%c",char_file);
     if(int_file == -1)
       break;
-    int i;
-    recorrimiento = 1;
-    cast_entrada = (char_file[0] ^ 0);
-    int_resultado = 0;
-    for(i = 0; i < 8; i++){
-      if(BYTE_CONSTANTE & recorrimiento){
-	int_resultado ^= cast_entrada;
-      }
-      cast_entrada = cast_entrada << 1;
-      recorrimiento = recorrimiento << 1;      
-    }
-    // 65280 en binario es 1111111100000000
-    int COTA_SUPERIOR = 65280;
-    //Hacer el modulo aqui al int_resultado.
-    salida_multi = (unsigned char*)&int_resultado;
-    fprintf(multi,"%c",*salida_multi);
+    cast_entrada = (char_file[0] ^ 0x00);
+    int_resultado = multiplica(cast_entrada, BYTE_CONSTANTE);  
+    // 283 en binario es 100011011;
+    // que es el polinomio = X^8+X^4+X^3+X+1
+    unsigned int POLINOMIO = 283;
+    printf("%d \n",int_resultado);
+    int_resultado = divide(int_resultado,POLINOMIO);
+    printf("%d \n",int_resultado);
+    unsigned int cota = 255;
+    //salida_multi = int_resultado & cota;
+    salida_multi[0] = int_resultado;
+    fprintf(multi,"%c",salida_multi[0]);
   }while(int_file != -1);
   return 0;
 }
@@ -241,6 +296,10 @@ int realiza_multiplicacion(char *entrada)
  */
 int main(int argc, char *argv[])
 {
+  /*unsigned int pp1 = 20250;
+  unsigned int pp2 = 255;
+  printf("%d \n",divide(pp1,pp2));
+  exit(0);*/
   //Si el parametro no es valido terminamos.
   if(argv[1] == NULL || argv[2] == NULL){
     printf("Favor de ejecutar el programa con \"%s <Ruta de dos archivos>\"\n",argv[0]);
@@ -251,9 +310,18 @@ int main(int argc, char *argv[])
   if(empareja_archivos(argv)){
     printf("Existe un problema al querer encuadrar los archivos");
     printf(" en el procedimiento linea: %d.\n",__LINE__);
+    return 1;
   }
 
-  realiza_xor(argv);
-  realiza_multiplicacion(argv[1]);
+  if(realiza_xor(argv)){
+    printf("Existe un problema al querer realizar el xor");
+    printf(" en el procedimiento linea: %d.\n",__LINE__);
+    return 1;
+  }
+  if(realiza_multiplicacion(argv[1])){
+    printf("Existe un problema al querer relizar la multiplicacion");
+    printf(" en el procedimiento linea: %d.\n",__LINE__);
+    return 1;
+  }
   return 0;
 } //Fin de bytes.c
