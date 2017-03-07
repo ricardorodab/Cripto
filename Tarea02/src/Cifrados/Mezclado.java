@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Hashtable;
 import java.util.NoSuchElementException;
 
 /**
@@ -49,98 +50,76 @@ import java.util.NoSuchElementException;
  * <p>                        
  * Crea el comportamiento para cifrar Cesar. </p>
  */
-public class Cesar{
+public class Mezclado{
+
+    private static String linea1;
+    private static String linea2;    
+    private static Hashtable<Character,Character> conversion
+	= new Hashtable<Character,Character>();
     
-    private static final int a = 0x41;
-    private static final int z = 0x5a;
-    private static int s;
-    private static int lugares = 0;
-
-    /**
-     * Metodo para crear una tabla que contenga el número de elementos.
-     * que tiene el abecedario.
-     * @return tablaCifrado - regresa la tabla de alafabeto Cesar.
-     */    
-    public static char[] creaTabla(){
-	char[] tablaCifrado = new char[26];
-	for(int i = 0; i < 26; i++){	    
-	    int k = (i % 26) + 65;
-	    tablaCifrado[i] = (char)k;
-	}
-	return tablaCifrado;
-    }
-
-    /**
-     * Metodo que cifra un archivo de texto con el metodo de Cesar.
-     * @param clave - es la palabra clave con la que cifra.
-     * @param entrada - es el archivo que contiene el texto a cifrar.
-     */
     public static void cifra(String clave, String entrada) throws IOException{
 	String linea = null;
 	BufferedReader texto = null;
-	char[] tabla = creaTabla();
+
 	try{
-	    String clave1 = (new BufferedReader(new FileReader(clave))).readLine();
 	    BufferedWriter escritor = new BufferedWriter(new FileWriter("salida.cifrado"));
-	    lugares = Integer.parseInt(clave1);
+	    BufferedReader claves = new BufferedReader(new FileReader(clave));
+	    linea1 = claves.readLine().toUpperCase();
+	    linea2 = claves.readLine().toUpperCase();
+	    putHash(linea1,linea2);
 	    texto = new BufferedReader(new FileReader(entrada));
 	    while((linea = texto.readLine()) != null){
 		for(int i = 0; i < linea.length(); i++){
 		    char fila = linea.toUpperCase().charAt(i);
-		    if(a > (s = (int)fila) || (s > z)){
-			System.out.print((char)s);
-			escritor.write((char)s);
-		    }else {
-			System.out.print(tabla[((s-65)+lugares)%tabla.length]);
-			escritor.write(tabla[((s-65)+lugares)%tabla.length]);			
+		    if(!conversion.containsKey(fila)){
+			System.out.print(fila);
+			escritor.write(fila);
+		    }else{
+			System.out.print(conversion.get(fila));
+			escritor.write(conversion.get(fila));
 		    }
 		    escritor.flush();
 		}
-	    }
-	    System.out.println("");
+	    }		    
 	}catch(FileNotFoundException e){
 	    System.err.println("El archivo de entrada no existe.");
-	}catch(NumberFormatException n){
-	    System.err.println("Se debe pasar un numero.");
-	}
-    } 
+	}       
+    }
 
-
-    /**
-     * Metodo que descifra un archivo de texto con el metodo de Cesar.
-     * @param clave - es la palabra clave con la que se descifra.
-     * @param entrada - es el archivo que contiene el texto a descifrar.
-     */    
     public static void descifra(String clave, String entrada) throws IOException{
 	String linea = null;
 	BufferedReader texto = null;
-	char[] tabla = creaTabla();
+
 	try{
-	    String clave1 = (new BufferedReader(new FileReader(clave))).readLine();
 	    BufferedWriter escritor = new BufferedWriter(new FileWriter("salida.descifrado"));
-	    lugares = Integer.parseInt(clave1);
+	    BufferedReader claves = new BufferedReader(new FileReader(clave));
+	    linea1 = claves.readLine().toUpperCase();
+	    linea2 = claves.readLine().toUpperCase();
+	    putHash(linea2,linea1);
 	    texto = new BufferedReader(new FileReader(entrada));
 	    while((linea = texto.readLine()) != null){
 		for(int i = 0; i < linea.length(); i++){
 		    char fila = linea.toUpperCase().charAt(i);
-		    if(a > (s = (int)fila) || (s > z)){
-			System.out.print((char)s);
-			escritor.write((char)s);
-		    }else {
-			int x = ((s-65)-lugares) % tabla.length;
-			if(x < 0)
-			    x += tabla.length;
-			System.out.print(tabla[x]);
-			escritor.write(tabla[x]);
+		    if(!conversion.containsKey(fila)){
+			System.out.print(fila);
+			escritor.write(fila);
+		    }else{
+			System.out.print(conversion.get(fila));
+			escritor.write(conversion.get(fila));
 		    }
 		    escritor.flush();
 		}
-	    }
-	    System.out.println("");
+	    }		    
 	}catch(FileNotFoundException e){
 	    System.err.println("El archivo de entrada no existe.");
-	}catch(NumberFormatException n){
-	    System.err.println("Se debe pasar un numero.");
+	}       
+    }
+
+
+    public static void putHash(String l1, String l2){
+	for(int i = 0; i < l1.length(); i++){
+	    conversion.put(l1.charAt(i),l2.charAt(i));
 	}
     }
-} //Fin de Cesar.java
+    
+}

@@ -100,6 +100,7 @@ public class Vigenere{
 	int k = 0;
 	char[][] tabla = creaTabla();
 	try{
+	    BufferedWriter escritor = new BufferedWriter(new FileWriter("salida.cifrado"));
 	    texto = new BufferedReader(new FileReader(entrada));
 	    llenaClave(clave);
 	    while((linea = texto.readLine()) != null){
@@ -107,6 +108,7 @@ public class Vigenere{
 		for(int u = 0; u < linea.length() ; u++){
 		    char fila = linea.toUpperCase().charAt(u);
 		    if(a > (s = (int)fila) || (s > z)){
+			escritor.write((char)s);
 			System.out.print((char)s);
 		    }else {
 			char columna = palClave;
@@ -114,12 +116,14 @@ public class Vigenere{
 			    char r = (char)q;
 			    if(r == fila){
 				System.out.print(tabla[q-a][(int)columna-a]);
+				escritor.write(tabla[q-a][(int)columna-a]);
 				k++;
 				palClave = sigClave();
 				break;
 			    }
 			}
 		    }
+		    escritor.flush();
 		}
 	    }
 	    System.out.println("");
@@ -144,6 +148,7 @@ public class Vigenere{
 	int k = 0;
 	char[][] tabla = creaTabla();
 	try{
+	    BufferedWriter escritor = new BufferedWriter(new FileWriter("salida.descifrado"));
 	    texto = new BufferedReader(new FileReader(entrada));
 	    llenaClave(clave);
 	    while((linea = texto.readLine()) != null){
@@ -152,17 +157,20 @@ public class Vigenere{
 		    char caracter = linea.toUpperCase().charAt(u);
 		    if(a > (s = (int)caracter) || (s > z)){
 			System.out.print((char)s);
+			escritor.write((char)s);
 		    }else {
 			char columna = palClave;
 			for(int q = a ; q <= z ; q++){
 			    if(caracter == tabla[q-a][(int)columna-a]){
 				System.out.print((char)q);
+				escritor.write((char)q);
 				k++;
 				palClave = sigClave();
 				break;
 			    }
 			}
 		    }
+		    escritor.flush();
 		}
 	    }
 	    System.out.println("");
@@ -177,14 +185,14 @@ public class Vigenere{
     }
 
     public static void llenaClave(String clave) throws IOException{
-	clave = clave.toUpperCase();
+	/*clave = clave.toUpperCase();
 	for(int i = 0; i < clave.length(); i++){
 	    if(verificaClave(clave.charAt(i)))
 		continue;
 	    claveArray.add(clave.charAt(i));
-	}
+	}*/
 	//Es que aqui recibia la clave en un archivo:
-	/*FileReader file = new FileReader(clave);
+	FileReader file = new FileReader(clave);
 	int entrada = 0;
 	while(entrada != -1){
 	    entrada = file.read();
@@ -193,7 +201,7 @@ public class Vigenere{
 	    String tmp = new String(new char[] {(char)entrada});
 	    claveArray.add(tmp.toUpperCase().charAt(0));
 	}
-	file.close();*/
+	file.close();
     }
 
     public static char sigClave(){

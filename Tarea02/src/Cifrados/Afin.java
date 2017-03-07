@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------
- * Cesar.java
+ * Afin.java
  * versión 2.0
  * Copyright (C) 2016  José Ricardo Rodríguez Abreu, Jimenez Mendez R..
  * Facultad de Ciencias,
@@ -44,22 +44,23 @@ import java.util.NoSuchElementException;
  * @version 2.0               
  * @since Mar 6 2017.        
  * <p>                        
- * Clase que crea el comportamiento del cifrado Cesar. </p>
+ * Clase que crea el comportamiento del cifrado Afin. </p>
  *                            
  * <p>                        
- * Crea el comportamiento para cifrar Cesar. </p>
+ * Crea el comportamiento para cifrar Afin. </p>
  */
-public class Cesar{
+public class Afin{
     
     private static final int a = 0x41;
     private static final int z = 0x5a;
     private static int s;
-    private static int lugares = 0;
+    private static int lugaresSuma = 0;
+    private static int lugaresProd = 0;
 
     /**
      * Metodo para crear una tabla que contenga el número de elementos.
      * que tiene el abecedario.
-     * @return tablaCifrado - regresa la tabla de alafabeto Cesar.
+     * @return tablaCifrado - regresa la tabla de alafabeto Afin.
      */    
     public static char[] creaTabla(){
 	char[] tablaCifrado = new char[26];
@@ -71,7 +72,7 @@ public class Cesar{
     }
 
     /**
-     * Metodo que cifra un archivo de texto con el metodo de Cesar.
+     * Metodo que cifra un archivo de texto con el metodo de Afin.
      * @param clave - es la palabra clave con la que cifra.
      * @param entrada - es el archivo que contiene el texto a cifrar.
      */
@@ -79,22 +80,22 @@ public class Cesar{
 	String linea = null;
 	BufferedReader texto = null;
 	char[] tabla = creaTabla();
+	String clave1 = (new BufferedReader(new FileReader(clave))).readLine();
+	String[] claveArr = clave1.split(",");
 	try{
-	    String clave1 = (new BufferedReader(new FileReader(clave))).readLine();
-	    BufferedWriter escritor = new BufferedWriter(new FileWriter("salida.cifrado"));
-	    lugares = Integer.parseInt(clave1);
+	    lugaresSuma = Integer.parseInt(claveArr[0]);
+	    lugaresProd = Integer.parseInt(claveArr[1]);
 	    texto = new BufferedReader(new FileReader(entrada));
 	    while((linea = texto.readLine()) != null){
 		for(int i = 0; i < linea.length(); i++){
 		    char fila = linea.toUpperCase().charAt(i);
 		    if(a > (s = (int)fila) || (s > z)){
 			System.out.print((char)s);
-			escritor.write((char)s);
 		    }else {
-			System.out.print(tabla[((s-65)+lugares)%tabla.length]);
-			escritor.write(tabla[((s-65)+lugares)%tabla.length]);			
+			int lugar = (((s-65)*lugaresProd)+lugaresSuma);
+			System.out.print(tabla[lugar%tabla.length]);
+			
 		    }
-		    escritor.flush();
 		}
 	    }
 	    System.out.println("");
@@ -107,7 +108,7 @@ public class Cesar{
 
 
     /**
-     * Metodo que descifra un archivo de texto con el metodo de Cesar.
+     * Metodo que descifra un archivo de texto con el metodo de Afin.
      * @param clave - es la palabra clave con la que se descifra.
      * @param entrada - es el archivo que contiene el texto a descifrar.
      */    
@@ -115,25 +116,30 @@ public class Cesar{
 	String linea = null;
 	BufferedReader texto = null;
 	char[] tabla = creaTabla();
+	String clave1 = (new BufferedReader(new FileReader(clave))).readLine();
+	String[] claveArr = clave1.split(",");
 	try{
-	    String clave1 = (new BufferedReader(new FileReader(clave))).readLine();
-	    BufferedWriter escritor = new BufferedWriter(new FileWriter("salida.descifrado"));
-	    lugares = Integer.parseInt(clave1);
+	    lugaresSuma = Integer.parseInt(claveArr[0]);
+	    lugaresProd = Integer.parseInt(claveArr[1]);
 	    texto = new BufferedReader(new FileReader(entrada));
 	    while((linea = texto.readLine()) != null){
 		for(int i = 0; i < linea.length(); i++){
 		    char fila = linea.toUpperCase().charAt(i);
 		    if(a > (s = (int)fila) || (s > z)){
 			System.out.print((char)s);
-			escritor.write((char)s);
 		    }else {
-			int x = ((s-65)-lugares) % tabla.length;
+			int x = ((s-65)-lugaresSuma);// % tabla.length;
+			//if(x < 0)
+			//   x += tabla.length;
+			int varTemp = x;
+			for(int l = 1; l < lugaresProd; l++){
+			    x -= varTemp;
+			}
+			x = x % tabla.length;
 			if(x < 0)
 			    x += tabla.length;
 			System.out.print(tabla[x]);
-			escritor.write(tabla[x]);
 		    }
-		    escritor.flush();
 		}
 	    }
 	    System.out.println("");
@@ -143,4 +149,4 @@ public class Cesar{
 	    System.err.println("Se debe pasar un numero.");
 	}
     }
-} //Fin de Cesar.java
+} //Fin de Afin.java

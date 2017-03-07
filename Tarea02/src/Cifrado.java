@@ -86,7 +86,25 @@ public class Cifrado{
 		}
 		break;
 	    case "afin":
+		if(procedimiento.equals("c")){
+		    Afin.cifra(clave,entrada);
+		}else if(procedimiento.equals("d")){
+		    Afin.descifra(clave,entrada);		
+		}else{ 
+		    msgUso();
+		}
 		break;
+	    case "mezclado":
+		if(procedimiento.equals("c")){
+		    Mezclado.cifra(clave,entrada);
+		}else if(procedimiento.equals("d")){
+		    Mezclado.descifra(clave,entrada);		
+		}else{ 
+		    msgUso();
+		}
+		break;
+	    default:
+		msgUso();
 	    }
 	}
     }    
