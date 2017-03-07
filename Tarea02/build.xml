@@ -1,0 +1,40 @@
+<project name="Tarea02" default="all" basedir=".">
+  <description>
+    Se usa para optimizar el manejo de la tarea 2.
+  </description>
+  
+  <property name="loginAda" value="jrodrigueza"/>
+ 
+  <target name="compile" description="Compila el código fuente.">
+    <mkdir dir="build"/>
+    <javac srcdir="src" destdir="build"/>
+  </target>
+  
+  <target name="doc"  description="Crea la documnetación del código.">
+    <mkdir dir="doc"/>
+    <javadoc destdir="doc" author="true" version="true" charset="UTF-8">
+      <link href="http://docs.oracle.com/javase/8/docs/api/" />
+      <fileset file="src/*"/>
+    </javadoc>
+  </target>
+  
+  <target name="clean" description="Elimina los archivos temporales y los direcotiros build y doc.">
+    <delete>
+      <fileset file="src/*" defaultexcludes="no">
+	<exclude name="*.java"/>
+	<exclude name="*.xml"/>
+	<exclude name="*.txt" />
+      </fileset>
+    </delete>
+    <delete dir="build" />
+    <delete dir="doc" />
+    <delete file="${loginAda}.tar" />
+  </target>
+  
+  <target name="dist" depends="clean" description="Crea un archivo tar para enviar el código.">
+    <tar destfile="${loginAda}.tar" basedir="../../"/>
+  </target>
+  
+  <target name="all" depends="clean,compile,doc" description="Compila y genera la documentación."/>
+
+</project>
